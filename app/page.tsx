@@ -55,28 +55,28 @@ interface FormData {
 
 // Initial data
 const mainCriteria: Criterion[] = [
-  { id: "main-1", code: "C1", name: "Economical", nameTR: "Ekonomik" },
-  { id: "main-2", code: "C2", name: "Social", nameTR: "Sosyal" },
-  { id: "main-3", code: "C3", name: "Environmental", nameTR: "Çevresel" },
+  { id: "main-1", code: "C1", name: "Economical", nameTR: "Ekonomik Faktörler" },
+  { id: "main-2", code: "C2", name: "Social", nameTR: "Sosyal Faktörler" },
+  { id: "main-3", code: "C3", name: "Environmental", nameTR: "Çevresel Faktörler" },
 ];
 
 const economicalSubCriteria: Criterion[] = [
-  { id: "eco-1", code: "C11", name: "Worklife", nameTR: "İş Yaşamı" },
-  { id: "eco-2", code: "C12", name: "Income & Wealth", nameTR: "Gelir ve Servet" },
-  { id: "eco-3", code: "C13", name: "Housing", nameTR: "Konut" },
+  { id: "eco-1", code: "C11", name: "Worklife", nameTR: "İş Yaşamı Kalitesi" },
+  { id: "eco-2", code: "C12", name: "Income & Wealth", nameTR: "Gelir ve Servet Düzeyi" },
+  { id: "eco-3", code: "C13", name: "Housing", nameTR: "Konut İmkanları" },
 ];
 
 const socialSubCriteria: Criterion[] = [
-  { id: "soc-1", code: "C21", name: "Health", nameTR: "Sağlık" },
-  { id: "soc-2", code: "C22", name: "Education", nameTR: "Eğitim" },
-  { id: "soc-3", code: "C23", name: "Civic Engagement", nameTR: "Sivil Katılım" },
+  { id: "soc-1", code: "C21", name: "Health", nameTR: "Sağlık Hizmetleri" },
+  { id: "soc-2", code: "C22", name: "Education", nameTR: "Eğitim Olanakları" },
+  { id: "soc-3", code: "C23", name: "Civic Engagement", nameTR: "Sivil Katılım ve Topluluk" },
 ];
 
 const environmentalSubCriteria: Criterion[] = [
-  { id: "env-1", code: "C31", name: "Infrastructure", nameTR: "Altyapı" },
-  { id: "env-2", code: "C32", name: "Safety", nameTR: "Güvenlik" },
-  { id: "env-3", code: "C33", name: "Environment/Green Space", nameTR: "Çevre/Yeşil Alan" },
-  { id: "env-4", code: "C34", name: "Life Satisfaction", nameTR: "Yaşam Memnuniyeti" },
+  { id: "env-1", code: "C31", name: "Infrastructure", nameTR: "Altyapı ve Ulaşım" },
+  { id: "env-2", code: "C32", name: "Safety", nameTR: "Güvenlik ve Asayiş" },
+  { id: "env-3", code: "C33", name: "Environment/Green Space", nameTR: "Çevre ve Yeşil Alanlar" },
+  { id: "env-4", code: "C34", name: "Life Satisfaction", nameTR: "Genel Yaşam Memnuniyeti" },
 ];
 
 const importanceScale = [
@@ -109,20 +109,15 @@ function SortableItem({
       style={style}
       {...attributes}
       {...listeners}
-      className={`flex items-center gap-3 p-3 bg-white border rounded-lg cursor-grab active:cursor-grabbing ${
-        isDragging ? "shadow-lg ring-2 ring-primary-500 z-50" : "shadow-sm"
-      }`}
+      className={`flex items-center gap-3 p-4 bg-white border rounded-lg cursor-grab active:cursor-grabbing ${
+        isDragging ? "shadow-lg ring-2 ring-primary-500 z-50" : "shadow-sm hover:shadow-md"
+      } transition-shadow`}
     >
-      <span className="flex items-center justify-center w-8 h-8 bg-primary-100 text-primary-700 rounded-full font-semibold text-sm">
+      <span className="flex items-center justify-center w-10 h-10 bg-primary-600 text-white rounded-full font-bold text-lg">
         {index + 1}
       </span>
       <div className="flex-1">
-        <span className="font-medium text-gray-800">{criterion.code}</span>
-        <span className="mx-2 text-gray-400">-</span>
-        <span className="text-gray-600">{criterion.name}</span>
-        {criterion.nameTR && (
-          <span className="ml-2 text-sm text-gray-400">({criterion.nameTR})</span>
-        )}
+        <span className="font-semibold text-gray-800 text-base">{criterion.nameTR || criterion.name}</span>
       </div>
       <svg
         className="w-5 h-5 text-gray-400"
@@ -194,27 +189,30 @@ function SortableList({
 function PairwiseComparisonRow({
   comparison,
   onChange,
+  firstLabel,
+  secondLabel,
 }: {
   comparison: PairwiseComparison;
   onChange: (value: string) => void;
+  firstLabel: string;
+  secondLabel: string;
 }) {
   return (
-    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-      <div className="flex items-center gap-2 flex-1">
-        <span className="font-semibold text-primary-700 bg-primary-100 px-3 py-1 rounded">
-          {comparison.first}
-        </span>
-        <span className="text-gray-500">vs</span>
-        <span className="font-semibold text-primary-700 bg-primary-100 px-3 py-1 rounded">
-          {comparison.second}
-        </span>
+    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="mb-3">
+        <p className="text-gray-700 font-medium text-center">
+          <span className="text-primary-700 font-semibold">"{firstLabel}"</span>
+          <span className="mx-2">kriterin,</span>
+          <span className="text-primary-700 font-semibold">"{secondLabel}"</span>
+          <span className="ml-2">kriterine göre ne kadar önemli?</span>
+        </p>
       </div>
       <select
         value={comparison.value}
         onChange={(e) => onChange(e.target.value)}
-        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-center font-medium"
       >
-        <option value="">Önem Derecesi Seçiniz</option>
+        <option value="">-- Önem Derecesi Seçiniz --</option>
         {importanceScale.map((scale) => (
           <option key={scale.value} value={scale.value}>
             {scale.label}
@@ -225,13 +223,21 @@ function PairwiseComparisonRow({
   );
 }
 
+// Extended comparison type with labels
+interface ExtendedComparison extends PairwiseComparison {
+  firstLabel: string;
+  secondLabel: string;
+}
+
 // Generate pairwise comparisons from ordered list
-function generateComparisons(items: Criterion[]): PairwiseComparison[] {
-  const comparisons: PairwiseComparison[] = [];
+function generateComparisons(items: Criterion[]): ExtendedComparison[] {
+  const comparisons: ExtendedComparison[] = [];
   for (let i = 0; i < items.length - 1; i++) {
     comparisons.push({
       first: items[i].code,
       second: items[i + 1].code,
+      firstLabel: items[i].nameTR || items[i].name,
+      secondLabel: items[i + 1].nameTR || items[i + 1].name,
       value: "",
     });
   }
@@ -265,10 +271,10 @@ export default function FucomSurveyPage() {
     ...environmentalSubCriteria,
   ]);
 
-  const [mainComparisons, setMainComparisons] = useState<PairwiseComparison[]>([]);
-  const [economicalComparisons, setEconomicalComparisons] = useState<PairwiseComparison[]>([]);
-  const [socialComparisons, setSocialComparisons] = useState<PairwiseComparison[]>([]);
-  const [environmentalComparisons, setEnvironmentalComparisons] = useState<PairwiseComparison[]>(
+  const [mainComparisons, setMainComparisons] = useState<ExtendedComparison[]>([]);
+  const [economicalComparisons, setEconomicalComparisons] = useState<ExtendedComparison[]>([]);
+  const [socialComparisons, setSocialComparisons] = useState<ExtendedComparison[]>([]);
+  const [environmentalComparisons, setEnvironmentalComparisons] = useState<ExtendedComparison[]>(
     []
   );
 
@@ -282,7 +288,7 @@ export default function FucomSurveyPage() {
 
   // Update comparison value
   const updateComparison = (
-    setter: React.Dispatch<React.SetStateAction<PairwiseComparison[]>>,
+    setter: React.Dispatch<React.SetStateAction<ExtendedComparison[]>>,
     index: number,
     value: string
   ) => {
@@ -684,11 +690,13 @@ export default function FucomSurveyPage() {
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   Ana Kriterler İkili Önem
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {mainComparisons.map((comparison, index) => (
                     <PairwiseComparisonRow
                       key={`main-${index}`}
                       comparison={comparison}
+                      firstLabel={comparison.firstLabel}
+                      secondLabel={comparison.secondLabel}
                       onChange={(value) =>
                         updateComparison(setMainComparisons, index, value)
                       }
@@ -706,13 +714,15 @@ export default function FucomSurveyPage() {
                 {/* Economical */}
                 <div className="mb-6">
                   <h4 className="font-medium text-gray-700 mb-3 text-sm uppercase tracking-wide">
-                    Ekonomik (C1) Alt Kriterleri
+                    Ekonomik Alt Kriterleri
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {economicalComparisons.map((comparison, index) => (
                       <PairwiseComparisonRow
                         key={`eco-${index}`}
                         comparison={comparison}
+                        firstLabel={comparison.firstLabel}
+                        secondLabel={comparison.secondLabel}
                         onChange={(value) =>
                           updateComparison(setEconomicalComparisons, index, value)
                         }
@@ -724,13 +734,15 @@ export default function FucomSurveyPage() {
                 {/* Social */}
                 <div className="mb-6">
                   <h4 className="font-medium text-gray-700 mb-3 text-sm uppercase tracking-wide">
-                    Sosyal (C2) Alt Kriterleri
+                    Sosyal Alt Kriterleri
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {socialComparisons.map((comparison, index) => (
                       <PairwiseComparisonRow
                         key={`soc-${index}`}
                         comparison={comparison}
+                        firstLabel={comparison.firstLabel}
+                        secondLabel={comparison.secondLabel}
                         onChange={(value) =>
                           updateComparison(setSocialComparisons, index, value)
                         }
@@ -742,13 +754,15 @@ export default function FucomSurveyPage() {
                 {/* Environmental */}
                 <div>
                   <h4 className="font-medium text-gray-700 mb-3 text-sm uppercase tracking-wide">
-                    Çevresel (C3) Alt Kriterleri
+                    Çevresel Alt Kriterleri
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {environmentalComparisons.map((comparison, index) => (
                       <PairwiseComparisonRow
                         key={`env-${index}`}
                         comparison={comparison}
+                        firstLabel={comparison.firstLabel}
+                        secondLabel={comparison.secondLabel}
                         onChange={(value) =>
                           updateComparison(setEnvironmentalComparisons, index, value)
                         }
