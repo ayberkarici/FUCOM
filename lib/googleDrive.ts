@@ -7,13 +7,29 @@ const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
  * Authenticate with Google Drive using Service Account credentials
  */
 function getAuthClient() {
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY;
   const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
 
   if (!privateKey || !clientEmail) {
     throw new Error(
       "Missing Google credentials. Please set GOOGLE_CLIENT_EMAIL and GOOGLE_PRIVATE_KEY environment variables."
     );
+  }
+
+  // Handle different formats of private key from environment variables
+  // Vercel and other platforms may escape newlines differently
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+  
+  // Remove surrounding quotes if present (some platforms add them)
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  
+  // Ensure proper PEM format
+  if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error("Invalid private key format. Key must be in PEM format.");
   }
 
   const auth = new google.auth.GoogleAuth({
