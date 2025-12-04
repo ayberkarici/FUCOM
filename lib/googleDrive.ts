@@ -72,6 +72,7 @@ export async function uploadToGoogleDrive(
       requestBody: fileMetadata,
       media: media,
       fields: "id, name, webViewLink",
+      supportsAllDrives: true, // Support shared drives
     });
 
     return {
@@ -84,6 +85,13 @@ export async function uploadToGoogleDrive(
     console.error("Error uploading to Google Drive:", err);
     
     // Provide user-friendly error messages
+    const errorMessage = err.message || '';
+    
+    // Check for storage quota error (Service Accounts don't have storage)
+    if (errorMessage.includes('storage quota') || errorMessage.includes('Service Accounts')) {
+      throw new Error("Service Account depolama kotası hatası. Lütfen Google Drive klasörünü service account email'i ile 'Editor' olarak paylaşın: fucom-service-account@fucom-480220.iam.gserviceaccount.com");
+    }
+    
     if (err.errors && err.errors.length > 0) {
       const firstError = err.errors[0];
       if (firstError.reason === 'accessNotConfigured') {
@@ -93,7 +101,10 @@ export async function uploadToGoogleDrive(
         throw new Error("Google Drive klasörü bulunamadı. Klasör ID'sini kontrol edin.");
       }
       if (firstError.reason === 'forbidden' || firstError.reason === 'insufficientPermissions') {
-        throw new Error("Google Drive klasörüne erişim izni yok. Service account'u klasöre ekleyin.");
+        throw new Error("Google Drive klasörüne erişim izni yok. Service account'u klasöre 'Editor' olarak ekleyin.");
+      }
+      if (firstError.reason === 'storageQuotaExceeded') {
+        throw new Error("Depolama kotası aşıldı. Klasörü service account ile paylaşın.");
       }
     }
     
