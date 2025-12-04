@@ -80,9 +80,24 @@ export async function uploadToGoogleDrive(
       webViewLink: response.data.webViewLink || undefined,
     };
   } catch (error: unknown) {
-    const err = error as Error & { code?: number; errors?: unknown[] };
+    const err = error as Error & { code?: number; errors?: Array<{ reason?: string; message?: string }> };
     console.error("Error uploading to Google Drive:", err);
-    throw new Error(`Failed to upload file to Google Drive: ${err.message}`);
+    
+    // Provide user-friendly error messages
+    if (err.errors && err.errors.length > 0) {
+      const firstError = err.errors[0];
+      if (firstError.reason === 'accessNotConfigured') {
+        throw new Error("Google Drive API etkinleştirilmemiş. Lütfen Google Cloud Console'dan Drive API'yi etkinleştirin.");
+      }
+      if (firstError.reason === 'notFound') {
+        throw new Error("Google Drive klasörü bulunamadı. Klasör ID'sini kontrol edin.");
+      }
+      if (firstError.reason === 'forbidden' || firstError.reason === 'insufficientPermissions') {
+        throw new Error("Google Drive klasörüne erişim izni yok. Service account'u klasöre ekleyin.");
+      }
+    }
+    
+    throw new Error(`Google Drive yükleme hatası: ${err.message}`);
   }
 }
 
