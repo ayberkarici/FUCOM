@@ -52,6 +52,36 @@ textarea:focus {
   cursor: grabbing !important;
 }
 
+/* Prevent text selection and improve touch on draggable items */
+[data-dnd-kit-disabled="false"] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Mobile drag enhancements */
+@media (pointer: coarse) {
+  /* Larger touch targets on mobile */
+  .cursor-grab {
+    min-height: 56px;
+  }
+  
+  /* Visual feedback for touch */
+  .cursor-grab:active {
+    transform: scale(1.02);
+    background-color: #f0f9ff;
+  }
+}
+
+/* Smooth dragging animation */
+.sortable-ghost {
+  opacity: 0.4;
+}
+
+.sortable-chosen {
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.15);
+}
+
 /* Animation for drag items */
 @keyframes fadeIn {
   from {

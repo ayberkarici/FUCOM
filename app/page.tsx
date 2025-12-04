@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -98,9 +100,10 @@ function SortableItem({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: criterion.id });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: 'none', // Prevent scroll on touch devices during drag
   };
 
   return (
@@ -109,9 +112,9 @@ function SortableItem({
       style={style}
       {...attributes}
       {...listeners}
-      className={`flex items-center gap-3 p-4 bg-white border rounded-lg cursor-grab active:cursor-grabbing ${
-        isDragging ? "shadow-lg ring-2 ring-primary-500 z-50" : "shadow-sm hover:shadow-md"
-      } transition-shadow`}
+      className={`flex items-center gap-3 p-4 bg-white border rounded-lg cursor-grab active:cursor-grabbing select-none ${
+        isDragging ? "shadow-lg ring-2 ring-primary-500 z-50 opacity-90" : "shadow-sm hover:shadow-md"
+      } transition-all`}
     >
       <span className="flex items-center justify-center w-10 h-10 bg-primary-600 text-white rounded-full font-bold text-lg">
         {index + 1}
@@ -146,14 +149,46 @@ function SortableList({
   onReorder: (items: Criterion[]) => void;
   title: string;
 }) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Prevent body scroll when dragging on mobile
+  useEffect(() => {
+    if (isDragging) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isDragging]);
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setIsDragging(false);
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -161,6 +196,10 @@ function SortableList({
       const newIndex = items.findIndex((item) => item.id === over.id);
       onReorder(arrayMove(items, oldIndex, newIndex));
     }
+  };
+
+  const handleDragCancel = () => {
+    setIsDragging(false);
   };
 
   return (
@@ -171,7 +210,9 @@ function SortableList({
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <SortableContext items={items} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
